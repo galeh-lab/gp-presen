@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Scan Presensi QR</title>
+
+  <script src="https://unpkg.com/@zxing/browser@latest"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f4f6fb;
+      color: #222;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 26px;
+      color: #4A1B9D;
+      font-weight: 800;
+    }
+
+    .header p {
+      margin: 8px 0 0;
+      color: #666;
+      font-size: 15px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .scanner-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .scanner-note {
+      font-size: 13px;
+      color: #777;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .btn {
+      flex: 1;
+      border: none;
+      border-radius: 14px;
+      padding: 13px 16px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #4A1B9D;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      display: none;
+    }
+
+    .video-wrap {
+      display: none;
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      border-radius: 16px;
+      background: #000;
+      border: 1px solid #e5e7eb;
+    }
+
+    video {
+      width: 100%;
+      min-height: 280px;
+      max-height: 520px;
+      display: block;
+      object-fit: cover;
+      background: #000;
+    }
+
+    .scan-frame {
+      position: absolute;
+      inset: 50%;
+      width: 230px;
+      height: 230px;
+      transform: translate(-50%, -50%);
+      border: 3px solid rgba(255,255,255,0.9);
+      border-radius: 18px;
+      box-shadow: 0 0 0 999px rgba(0,0,0,0.25);
+      pointer-events: none;
+    }
+
+    .result-card {
+      display: none;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .result-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #4A1B9D;
+      margin-bottom: 14px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 10px 14px;
+      font-size: 15px;
+    }
+
+    .label {
+      color: #777;
+      font-weight: 600;
+    }
+
+    .value {
+      color: #222;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .toast {
+      position: fixed;
+      top: 22px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      min-width: 260px;
+      max-width: calc(100% - 32px);
+      padding: 14px 18px;
+      border-radius: 14px;
+      color: #fff;
+      font-weight: 700;
+      text-align: center;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.25s ease;
+      z-index: 9999;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.success {
+      background: #16a34a;
+    }
+
+    .toast.error {
+      background: #dc2626;
+    }
+
+    .loading {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 14px;
+      color: #666;
+      margin-top: 14px;
+      font-weight: 600;
+    }
+
+    .loading.show {
+      display: flex;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 3px solid #ddd;
+      border-top: 3px solid #4A1B9D;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .manual-box {
+      margin-top: 14px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .manual-box label {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .manual-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .manual-row input {
+      flex: 1;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .manual-row input:focus {
+      border-color: #4A1B9D;
+      box-shadow: 0 0 0 3px rgba(74, 27, 157, 0.12);
+    }
+
+    .manual-row button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      background: #4A1B9D;
+      color: #fff;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .app {
+        padding: 18px 12px 32px;
+      }
+
+      .header h1 {
+        font-size: 22px;
+      }
+
+      .button-row {
+        flex-direction: column;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+
+      .label {
+        margin-top: 10px;
+      }
+
+      .manual-row {
+        flex-direction: column;
+      }
+
+      .manual-row button {
+        width: 100%;
+      }
+
+      .scan-frame {
+        width: 190px;
+        height: 190px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="toast" class="toast"></div>
+
+  <div class="app">
+    <div class="header">
+      <h1>Scan Presensi QR</h1>
+      <p>Arahkan kamera ke QR Code untuk melakukan presensi.</p>
+    </div>
+
+    <div class="card">
+      <div class="scanner-title">Kamera Scan QR</div>
+
+      <div class="scanner-note">
+        Klik <b>Aktifkan Kamera</b>, lalu izinkan akses kamera.
+        QR Code harus berisi <b>ID</b>.
+      </div>
+
+      <div class="button-row">
+        <button id="startBtn" type="button" class="btn btn-primary" onclick="startCamera()">
+          Aktifkan Kamera
+        </button>
+
+        <button id="stopBtn" type="button" class="btn btn-danger" onclick="stopCamera()">
+          Matikan Kamera
+        </button>
+      </div>
+
+      <div id="videoWrap" class="video-wrap">
+        <video id="video" playsinline muted></video>
+        <div class="scan-frame"></div>
+      </div>
+
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <span>Memproses presensi...</span>
+      </div>
+
+      <div class="manual-box">
+        <label for="manualID">Input ID Manual</label>
+        <div class="manual-row">
+          <input type="text" id="manualID" placeholder="Masukkan ID">
+          <button type="button" onclick="submitManual()">Presensi</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="resultCard" class="card result-card">
+      <div class="result-title">Data Presensi</div>
+
+      <div class="info-grid">
+        <div class="label">ID</div>
+        <div id="resID" class="value">-</div>
+
+        <div class="label">Nama</div>
+        <div id="resNama" class="value">-</div>
+
+        <div class="label">Nama Kegiatan</div>
+        <div id="resKegiatan" class="value">-</div>
+
+        <div class="label">Tanggal Presensi</div>
+        <div id="resTanggal" class="value">-</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz4rHtqCvvEr_yjeT603URDqJrv7S86xLHyN4gZpkDiQ5JXMbjw5hFygmfbiYGtsCU0/exec';
+    const API_TOKEN = 'presensi2026';
+
+    let codeReader = null;
+    let controls = null;
+    let isProcessing = false;
+    let lastScannedText = '';
+    let lastScanTime = 0;
+
+    async function startCamera() {
+      const startBtn = document.getElementById('startBtn');
+      const stopBtn = document.getElementById('stopBtn');
+      const videoWrap = document.getElementById('videoWrap');
+
+      if (!window.ZXingBrowser) {
+        showToast('Library scanner gagal dimuat', 'error');
+        return;
+      }
+
+      try {
+        startBtn.disabled = true;
+        startBtn.textContent = 'Membuka Kamera...';
+
+        codeReader = new ZXingBrowser.BrowserQRCodeReader();
+
+        const devices = await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
+
+        if (!devices || devices.length === 0) {
+          showToast('Kamera tidak ditemukan', 'error');
+          resetCameraButtons();
+          return;
+        }
+
+        let selectedDeviceId = devices[0].deviceId;
+
+        const backCamera = devices.find(function(device) {
+          const label = String(device.label || '').toLowerCase();
+
+          return label.includes('back') ||
+                 label.includes('rear') ||
+                 label.includes('environment') ||
+                 label.includes('belakang');
+        });
+
+        if (backCamera) {
+          selectedDeviceId = backCamera.deviceId;
+        }
+
+        videoWrap.style.display = 'block';
+
+        controls = await codeReader.decodeFromVideoDevice(
+          selectedDeviceId,
+          'video',
+          function(result, error) {
+            if (result) {
+              const qrText = result.getText();
+              processPresensi(qrText);
+            }
+          }
+        );
+
+        startBtn.style.display = 'none';
+        stopBtn.style.display = 'inline-block';
+        showToast('Kamera aktif', 'success');
+
+      } catch (err) {
+        console.error(err);
+
+        let message = 'Kamera tidak dapat dibuka';
+
+        if (err && (
+          err.name === 'NotAllowedError' ||
+          String(err.message || '').toLowerCase().includes('permission')
+        )) {
+          message = 'Izin kamera ditolak browser';
+        } else if (err && err.name === 'NotFoundError') {
+          message = 'Kamera tidak ditemukan';
+        } else if (err && err.name === 'NotReadableError') {
+          message = 'Kamera sedang digunakan aplikasi lain';
+        }
+
+        showToast(message, 'error');
+        resetCameraButtons();
+      }
+    }
+
+    function stopCamera() {
+      try {
+        if (controls) {
+          controls.stop();
+        }
+
+        const video = document.getElementById('video');
+
+        if (video && video.srcObject) {
+          video.srcObject.getTracks().forEach(function(track) {
+            track.stop();
+          });
+
+          video.srcObject = null;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+
+      controls = null;
+      codeReader = null;
+
+      document.getElementById('videoWrap').style.display = 'none';
+      resetCameraButtons();
+
+      showToast('Kamera dimatikan', 'success');
+    }
+
+    function resetCameraButtons() {
+      const startBtn = document.getElementById('startBtn');
+      const stopBtn = document.getElementById('stopBtn');
+
+      startBtn.disabled = false;
+      startBtn.textContent = 'Aktifkan Kamera';
+      startBtn.style.display = 'inline-block';
+
+      stopBtn.style.display = 'none';
+    }
+
+    function submitManual() {
+      const manualID = document.getElementById('manualID').value.trim();
+
+      if (!manualID) {
+        showToast('Masukkan ID terlebih dahulu', 'error');
+        return;
+      }
+
+      processPresensi(manualID);
+    }
+
+    function processPresensi(qrText) {
+      const now = Date.now();
+      qrText = String(qrText || '').trim();
+
+      if (!qrText) return;
+      if (isProcessing) return;
+
+      if (qrText === lastScannedText && now - lastScanTime < 3000) {
+        return;
+      }
+
+      isProcessing = true;
+      lastScannedText = qrText;
+      lastScanTime = now;
+
+      document.getElementById('loading').classList.add('show');
+
+      callAppsScriptApi(qrText, function(response) {
+        document.getElementById('loading').classList.remove('show');
+
+        if (response && response.success) {
+          showToast('Berhasil', 'success');
+          renderResult(response.data);
+        } else {
+          showToast((response && response.message) ? response.message : 'ID Tidak Ditemukan', 'error');
+        }
+
+        setTimeout(function() {
+          isProcessing = false;
+        }, 1500);
+      });
+    }
+
+    function callAppsScriptApi(id, callback) {
+      const callbackName = 'jsonpCallback_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+
+      window[callbackName] = function(response) {
+        callback(response);
+
+        delete window[callbackName];
+
+        const oldScript = document.getElementById(callbackName);
+        if (oldScript) {
+          oldScript.remove();
+        }
+      };
+
+      const url =
+        WEBAPP_URL +
+        '?action=scan' +
+        '&id=' + encodeURIComponent(id) +
+        '&token=' + encodeURIComponent(API_TOKEN) +
+        '&callback=' + encodeURIComponent(callbackName);
+
+      const script = document.createElement('script');
+      script.id = callbackName;
+      script.src = url;
+
+      script.onerror = function() {
+        callback({
+          success: false,
+          message: 'Gagal menghubungi server presensi'
+        });
+
+        delete window[callbackName];
+
+        const oldScript = document.getElementById(callbackName);
+        if (oldScript) {
+          oldScript.remove();
+        }
+      };
+
+      document.body.appendChild(script);
+    }
+
+    function renderResult(data) {
+      document.getElementById('resultCard').style.display = 'block';
+
+      document.getElementById('resID').textContent = data.id || '-';
+      document.getElementById('resNama').textContent = data.nama || '-';
+      document.getElementById('resKegiatan').textContent = data.kegiatan || '-';
+      document.getElementById('resTanggal').textContent = data.tanggal || '-';
+    }
+
+    function showToast(message, type) {
+      const toast = document.getElementById('toast');
+
+      toast.textContent = message;
+      toast.className = 'toast ' + type + ' show';
+
+      setTimeout(function() {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
