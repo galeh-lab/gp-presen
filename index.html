@@ -407,8 +407,7 @@
   <div class="page">
     <div class="topbar">
       <div>
-        <h1>Presensi QR</h1>
-        <p>Scan QR peserta, lalu daftar presensi akan diperbarui otomatis.</p>
+        <h1>Presensi QR Kegiatan LPPM</h1>
       </div>
     </div>
 
@@ -416,10 +415,6 @@
       <div class="panel">
         <div class="panel-body">
           <h2 class="section-title">Scan QR</h2>
-          <p class="scanner-note">
-            Klik aktifkan kamera. QR tidak harus tepat di kotak tertentu, cukup terlihat jelas di area kamera.
-          </p>
-
           <div class="button-row">
             <button id="startBtn" type="button" class="btn btn-primary" onclick="startCamera()">
               Aktifkan Kamera
@@ -459,7 +454,7 @@
 
           <div class="stats">
             <div class="stat-card">
-              <div class="stat-label">Total Data</div>
+              <div class="stat-label">Total Peserta</div>
               <div id="totalData" class="stat-value">0</div>
             </div>
 
@@ -498,7 +493,7 @@
   </div>
 
   <script>
-    const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz4rHtqCvvEr_yjeT603URDqJrv7S86xLHyN4gZpkDiQ5JXMbjw5hFygmfbiYGtsCU0/exec';
+    const WEBAPP_URL = 'ISI_URL_WEBAPP_APPS_SCRIPT_ANDA';
     const API_TOKEN = 'presensi2026';
 
     let codeReader = null;
