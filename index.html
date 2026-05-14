@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Scan Presensi QR</title>
+  <title>Presensi QR</title>
 
   <script src="https://unpkg.com/@zxing/browser@latest"></script>
 
@@ -16,142 +16,260 @@
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f4f6fb;
-      color: #222;
+      background: #f6f7fb;
+      color: #1f2937;
     }
 
-    .app {
+    .page {
       width: 100%;
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 24px 16px 40px;
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .header h1 {
-      margin: 0;
-      font-size: 26px;
-      color: #4A1B9D;
-      font-weight: 800;
-    }
-
-    .header p {
-      margin: 8px 0 0;
-      color: #666;
-      font-size: 15px;
-    }
-
-    .card {
-      background: #ffffff;
-      border-radius: 18px;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+      min-height: 100vh;
       padding: 18px;
-      margin-bottom: 18px;
     }
 
-    .scanner-title {
-      font-size: 17px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: #333;
+    .topbar {
+      width: 100%;
+      background: #4A1B9D;
+      color: #fff;
+      border-radius: 18px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      box-shadow: 0 10px 28px rgba(74, 27, 157, 0.22);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 850;
+    }
+
+    .topbar p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
+      border: 1px solid #eef0f5;
+      overflow: hidden;
+    }
+
+    .panel-body {
+      padding: 16px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 850;
+      margin: 0 0 10px;
+      color: #111827;
     }
 
     .scanner-note {
+      margin: 0 0 12px;
       font-size: 13px;
-      color: #777;
-      margin-bottom: 14px;
+      color: #6b7280;
       line-height: 1.5;
     }
 
     .button-row {
       display: flex;
-      gap: 10px;
-      margin-bottom: 14px;
+      gap: 8px;
+      margin-bottom: 12px;
     }
 
     .btn {
-      flex: 1;
       border: none;
-      border-radius: 14px;
-      padding: 13px 16px;
+      border-radius: 12px;
+      padding: 11px 14px;
       color: #fff;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 800;
       cursor: pointer;
+      transition: 0.2s ease;
     }
 
     .btn-primary {
+      flex: 1;
       background: #4A1B9D;
     }
 
+    .btn-primary:hover {
+      background: #371176;
+    }
+
     .btn-danger {
+      flex: 1;
       background: #ef4444;
       display: none;
     }
 
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
     .video-wrap {
       display: none;
-      position: relative;
       width: 100%;
       overflow: hidden;
-      border-radius: 16px;
+      border-radius: 14px;
       background: #000;
       border: 1px solid #e5e7eb;
     }
 
     video {
       width: 100%;
-      min-height: 280px;
-      max-height: 520px;
+      height: 230px;
       display: block;
       object-fit: cover;
       background: #000;
     }
 
-    .scan-frame {
-      position: absolute;
-      inset: 50%;
-      width: 230px;
-      height: 230px;
-      transform: translate(-50%, -50%);
-      border: 3px solid rgba(255,255,255,0.9);
-      border-radius: 18px;
-      box-shadow: 0 0 0 999px rgba(0,0,0,0.25);
-      pointer-events: none;
+    .manual-box {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #eef0f5;
     }
 
-    .result-card {
-      display: none;
-      animation: fadeIn 0.25s ease;
-    }
-
-    .result-title {
-      font-size: 18px;
+    .manual-box label {
+      display: block;
+      font-size: 13px;
       font-weight: 800;
-      color: #4A1B9D;
-      margin-bottom: 14px;
+      color: #374151;
+      margin-bottom: 8px;
     }
 
-    .info-grid {
+    .manual-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .manual-row input {
+      flex: 1;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .manual-row input:focus {
+      border-color: #4A1B9D;
+      box-shadow: 0 0 0 3px rgba(74, 27, 157, 0.12);
+    }
+
+    .manual-row button {
+      border: none;
+      border-radius: 12px;
+      padding: 11px 13px;
+      background: #4A1B9D;
+      color: #fff;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .stats {
       display: grid;
-      grid-template-columns: 170px 1fr;
-      gap: 10px 14px;
-      font-size: 15px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
-    .label {
-      color: #777;
-      font-weight: 600;
+    .stat-card {
+      background: #f9fafb;
+      border: 1px solid #eef0f5;
+      border-radius: 14px;
+      padding: 12px;
     }
 
-    .value {
-      color: #222;
-      font-weight: 700;
-      word-break: break-word;
+    .stat-label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 900;
+      color: #4A1B9D;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 18px;
+      border: 1px solid #eef0f5;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      min-width: 850px;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #4A1B9D;
+      color: #fff;
+    }
+
+    th {
+      padding: 13px 14px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 13px 14px;
+      border-bottom: 1px solid #eef0f5;
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    tbody tr:hover {
+      background: #faf7ff;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .badge-success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge-muted {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 26px;
+      color: #6b7280;
+      font-size: 14px;
     }
 
     .toast {
@@ -164,7 +282,7 @@
       padding: 14px 18px;
       border-radius: 14px;
       color: #fff;
-      font-weight: 700;
+      font-weight: 800;
       text-align: center;
       box-shadow: 0 12px 28px rgba(0,0,0,0.18);
       opacity: 0;
@@ -190,11 +308,11 @@
       display: none;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      font-size: 14px;
-      color: #666;
-      margin-top: 14px;
-      font-weight: 600;
+      gap: 8px;
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 12px;
+      font-weight: 700;
     }
 
     .loading.show {
@@ -202,69 +320,27 @@
     }
 
     .spinner {
-      width: 18px;
-      height: 18px;
+      width: 17px;
+      height: 17px;
       border: 3px solid #ddd;
       border-top: 3px solid #4A1B9D;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
 
-    .manual-box {
-      margin-top: 14px;
+    .last-scan {
+      margin-top: 12px;
       background: #f8fafc;
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      padding: 14px;
-    }
-
-    .manual-box label {
-      display: block;
-      font-size: 14px;
-      font-weight: 700;
-      color: #333;
-      margin-bottom: 8px;
-    }
-
-    .manual-row {
-      display: flex;
-      gap: 8px;
-    }
-
-    .manual-row input {
-      flex: 1;
-      border: 1px solid #d1d5db;
+      border: 1px dashed #d1d5db;
+      color: #374151;
       border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 15px;
-      outline: none;
+      padding: 11px;
+      font-size: 13px;
+      line-height: 1.45;
     }
 
-    .manual-row input:focus {
-      border-color: #4A1B9D;
-      box-shadow: 0 0 0 3px rgba(74, 27, 157, 0.12);
-    }
-
-    .manual-row button {
-      border: none;
-      border-radius: 12px;
-      padding: 12px 16px;
-      background: #4A1B9D;
-      color: #fff;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    .last-scan b {
+      color: #4A1B9D;
     }
 
     @keyframes spin {
@@ -273,26 +349,41 @@
       }
     }
 
-    @media (max-width: 560px) {
-      .app {
-        padding: 18px 12px 32px;
-      }
-
-      .header h1 {
-        font-size: 22px;
-      }
-
-      .button-row {
-        flex-direction: column;
-      }
-
-      .info-grid {
+    @media (max-width: 900px) {
+      .main-layout {
         grid-template-columns: 1fr;
-        gap: 4px;
       }
 
-      .label {
-        margin-top: 10px;
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      video {
+        height: 220px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .page {
+        padding: 12px;
+      }
+
+      .topbar {
+        border-radius: 15px;
+        padding: 15px;
+      }
+
+      .topbar h1 {
+        font-size: 19px;
+      }
+
+      .panel {
+        border-radius: 15px;
       }
 
       .manual-row {
@@ -303,9 +394,8 @@
         width: 100%;
       }
 
-      .scan-frame {
-        width: 190px;
-        height: 190px;
+      .button-row {
+        flex-direction: column;
       }
     }
   </style>
@@ -314,64 +404,95 @@
 <body>
   <div id="toast" class="toast"></div>
 
-  <div class="app">
-    <div class="header">
-      <h1>Scan Presensi QR</h1>
-      <p>Arahkan kamera ke QR Code untuk melakukan presensi.</p>
+  <div class="page">
+    <div class="topbar">
+      <div>
+        <h1>Presensi QR</h1>
+        <p>Scan QR peserta, lalu daftar presensi akan diperbarui otomatis.</p>
+      </div>
     </div>
 
-    <div class="card">
-      <div class="scanner-title">Kamera Scan QR</div>
+    <div class="main-layout">
+      <div class="panel">
+        <div class="panel-body">
+          <h2 class="section-title">Scan QR</h2>
+          <p class="scanner-note">
+            Klik aktifkan kamera. QR tidak harus tepat di kotak tertentu, cukup terlihat jelas di area kamera.
+          </p>
 
-      <div class="scanner-note">
-        Klik <b>Aktifkan Kamera</b>, lalu izinkan akses kamera.
-        QR Code harus berisi <b>ID</b>.
-      </div>
+          <div class="button-row">
+            <button id="startBtn" type="button" class="btn btn-primary" onclick="startCamera()">
+              Aktifkan Kamera
+            </button>
 
-      <div class="button-row">
-        <button id="startBtn" type="button" class="btn btn-primary" onclick="startCamera()">
-          Aktifkan Kamera
-        </button>
+            <button id="stopBtn" type="button" class="btn btn-danger" onclick="stopCamera()">
+              Matikan Kamera
+            </button>
+          </div>
 
-        <button id="stopBtn" type="button" class="btn btn-danger" onclick="stopCamera()">
-          Matikan Kamera
-        </button>
-      </div>
+          <div id="videoWrap" class="video-wrap">
+            <video id="video" playsinline muted></video>
+          </div>
 
-      <div id="videoWrap" class="video-wrap">
-        <video id="video" playsinline muted></video>
-        <div class="scan-frame"></div>
-      </div>
+          <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <span>Memproses...</span>
+          </div>
 
-      <div id="loading" class="loading">
-        <div class="spinner"></div>
-        <span>Memproses presensi...</span>
-      </div>
+          <div id="lastScan" class="last-scan">
+            Scan terakhir: <b>Belum ada</b>
+          </div>
 
-      <div class="manual-box">
-        <label for="manualID">Input ID Manual</label>
-        <div class="manual-row">
-          <input type="text" id="manualID" placeholder="Masukkan ID">
-          <button type="button" onclick="submitManual()">Presensi</button>
+          <div class="manual-box">
+            <label for="manualID">Input ID Manual</label>
+            <div class="manual-row">
+              <input type="text" id="manualID" placeholder="Masukkan ID">
+              <button type="button" onclick="submitManual()">Presensi</button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div id="resultCard" class="card result-card">
-      <div class="result-title">Data Presensi</div>
+      <div class="panel">
+        <div class="panel-body">
+          <h2 class="section-title">Daftar Presensi</h2>
 
-      <div class="info-grid">
-        <div class="label">ID</div>
-        <div id="resID" class="value">-</div>
+          <div class="stats">
+            <div class="stat-card">
+              <div class="stat-label">Total Data</div>
+              <div id="totalData" class="stat-value">0</div>
+            </div>
 
-        <div class="label">Nama</div>
-        <div id="resNama" class="value">-</div>
+            <div class="stat-card">
+              <div class="stat-label">Sudah Presensi</div>
+              <div id="totalHadir" class="stat-value">0</div>
+            </div>
 
-        <div class="label">Nama Kegiatan</div>
-        <div id="resKegiatan" class="value">-</div>
+            <div class="stat-card">
+              <div class="stat-label">Belum Presensi</div>
+              <div id="totalBelum" class="stat-value">0</div>
+            </div>
+          </div>
 
-        <div class="label">Tanggal Presensi</div>
-        <div id="resTanggal" class="value">-</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nama</th>
+                  <th>Nama Kegiatan</th>
+                  <th>Tanggal Presensi</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="presensiBody">
+                <tr>
+                  <td colspan="5" class="empty">Memuat data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -385,6 +506,10 @@
     let isProcessing = false;
     let lastScannedText = '';
     let lastScanTime = 0;
+
+    window.addEventListener('load', function() {
+      loadPresensiList();
+    });
 
     async function startCamera() {
       const startBtn = document.getElementById('startBtn');
@@ -440,6 +565,7 @@
 
         startBtn.style.display = 'none';
         stopBtn.style.display = 'inline-block';
+
         showToast('Kamera aktif', 'success');
 
       } catch (err) {
@@ -511,6 +637,7 @@
       }
 
       processPresensi(manualID);
+      document.getElementById('manualID').value = '';
     }
 
     function processPresensi(qrText) {
@@ -530,12 +657,13 @@
 
       document.getElementById('loading').classList.add('show');
 
-      callAppsScriptApi(qrText, function(response) {
+      callAppsScriptApi('scan', { id: qrText }, function(response) {
         document.getElementById('loading').classList.remove('show');
 
         if (response && response.success) {
           showToast('Berhasil', 'success');
-          renderResult(response.data);
+          updateLastScan(response.data);
+          loadPresensiList();
         } else {
           showToast((response && response.message) ? response.message : 'ID Tidak Ditemukan', 'error');
         }
@@ -546,7 +674,18 @@
       });
     }
 
-    function callAppsScriptApi(id, callback) {
+    function loadPresensiList() {
+      callAppsScriptApi('list', {}, function(response) {
+        if (response && response.success) {
+          renderPresensiList(response.data || []);
+        } else {
+          document.getElementById('presensiBody').innerHTML =
+            '<tr><td colspan="5" class="empty">Gagal memuat data</td></tr>';
+        }
+      });
+    }
+
+    function callAppsScriptApi(action, params, callback) {
       const callbackName = 'jsonpCallback_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
 
       window[callbackName] = function(response) {
@@ -560,12 +699,15 @@
         }
       };
 
-      const url =
+      let url =
         WEBAPP_URL +
-        '?action=scan' +
-        '&id=' + encodeURIComponent(id) +
+        '?action=' + encodeURIComponent(action) +
         '&token=' + encodeURIComponent(API_TOKEN) +
         '&callback=' + encodeURIComponent(callbackName);
+
+      Object.keys(params || {}).forEach(function(key) {
+        url += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+      });
 
       const script = document.createElement('script');
       script.id = callbackName;
@@ -588,13 +730,55 @@
       document.body.appendChild(script);
     }
 
-    function renderResult(data) {
-      document.getElementById('resultCard').style.display = 'block';
+    function renderPresensiList(rows) {
+      const body = document.getElementById('presensiBody');
 
-      document.getElementById('resID').textContent = data.id || '-';
-      document.getElementById('resNama').textContent = data.nama || '-';
-      document.getElementById('resKegiatan').textContent = data.kegiatan || '-';
-      document.getElementById('resTanggal').textContent = data.tanggal || '-';
+      if (!rows.length) {
+        body.innerHTML = '<tr><td colspan="5" class="empty">Belum ada data</td></tr>';
+        updateStats([]);
+        return;
+      }
+
+      body.innerHTML = rows.map(function(row) {
+        const status = String(row.status || '').toLowerCase();
+        const isHadir = status === 'sudah presensi';
+
+        return `
+          <tr>
+            <td>${escapeHtml(row.id)}</td>
+            <td>${escapeHtml(row.nama)}</td>
+            <td>${escapeHtml(row.kegiatan)}</td>
+            <td>${escapeHtml(row.tanggal || '-')}</td>
+            <td>
+              <span class="badge ${isHadir ? 'badge-success' : 'badge-muted'}">
+                ${escapeHtml(row.status || 'belum presensi')}
+              </span>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      updateStats(rows);
+    }
+
+    function updateStats(rows) {
+      const total = rows.length;
+      const hadir = rows.filter(function(row) {
+        return String(row.status || '').toLowerCase() === 'sudah presensi';
+      }).length;
+
+      const belum = total - hadir;
+
+      document.getElementById('totalData').textContent = total;
+      document.getElementById('totalHadir').textContent = hadir;
+      document.getElementById('totalBelum').textContent = belum;
+    }
+
+    function updateLastScan(data) {
+      document.getElementById('lastScan').innerHTML =
+        'Scan terakhir: <b>' + escapeHtml(data.id || '-') + '</b><br>' +
+        escapeHtml(data.nama || '-') + '<br>' +
+        '<small>' + escapeHtml(data.tanggal || '-') + '</small>';
     }
 
     function showToast(message, type) {
@@ -606,6 +790,15 @@
       setTimeout(function() {
         toast.classList.remove('show');
       }, 2000);
+    }
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
   </script>
 </body>
